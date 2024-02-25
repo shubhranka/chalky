@@ -12,7 +12,7 @@ const SearchInput = () => {
     const router = useRouter();
     const [value, setValue] = useState("");
 
-    const debouncedValue = useDebounceValue(value, 500);
+    const debouncedValue = useDebounceValue(value, 200);
 
     useEffect(() => {
         const url = qs.stringifyUrl({

@@ -12,7 +12,7 @@ const DashboardLayout = ({children} : DashboardLayoutProps) => {
     return (
         <main className="h-full">
             <Sidebar/>
-            <div className="pl-[60px]">
+            <div className="h-full pl-[60px]">
                 <div className="flex gap-x-4 h-full">
                     <OrgSidebar/>
                     <div className="h-full flex-1">

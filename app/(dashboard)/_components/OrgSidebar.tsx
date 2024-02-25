@@ -8,7 +8,6 @@ import { OrganizationSwitcher } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Star } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { space } from "postcss/lib/list";
 
 const font = Poppins({
   subsets: ["latin"],
