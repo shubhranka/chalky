@@ -15,7 +15,7 @@ export const create = mutation({
             throw new Error("User not found");
         }
 
-        const randomImage = Math.floor(Math.random() * 7) + 1;
+        const randomImage = Math.floor(Math.random() * 6) + 1;
 
         const board = await ctx.db.insert("boards", {
             title: args.title,
@@ -24,5 +24,7 @@ export const create = mutation({
             authorName: identity.name!,
             imageUrl: `${imagesPath}/${randomImage}.png`,
         })
+
+        return board;
     },
 })
