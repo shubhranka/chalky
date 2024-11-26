@@ -8,7 +8,6 @@ interface FavouriteBoardProps {
 }
 
 const FavouriteBoard = ({searchParams,data} : FavouriteBoardProps) => {
-    console.log(searchParams)
     if(!(searchParams?.favourite)) return null;
 
     const favourite = false

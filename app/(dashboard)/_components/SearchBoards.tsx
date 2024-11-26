@@ -8,7 +8,7 @@ interface SearchBoardsProps {
 }
 
 const SearchBoards = ({searchParams,data} : SearchBoardsProps) => {
-    console.log(searchParams)
+ 
     if(!(searchParams?.search)) return null;
 
     const favourite = false
