@@ -3,6 +3,7 @@ import { useApiMutation } from "@/hooks/api-mutation";
 import { cn } from "@/lib/utils";
 import { useOrganization } from "@clerk/clerk-react";
 import { Plus } from "lucide-react";
+import Image from "next/image";
 import { title } from "process";
 import { toast } from "sonner";
 
@@ -21,12 +22,9 @@ const NewBoardButton = ({ createBoard, pending }: NewBoardButtonProps) => {
         pending && "cursor-not-allowed bg-black/75"
       )}
     >
-      <Plus className="text-white h-12 w-12 stroke-1" />
-      <p
-        className="
-                text-white text-lg font-semibold
-            "
-      >
+      {/* <Plus className="text-white h-12 w-12 stroke-1" /> */}
+      <Image src="/plus-white.png" width={200} height={200} alt="plus-sign" className="h-28 w-28"/>
+      <p className="text-white text-lg font-semibold">
         {!pending ? "New Board" : "Creating Board"}
       </p>
     </button>
