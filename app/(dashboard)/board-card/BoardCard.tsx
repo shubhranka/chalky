@@ -26,6 +26,7 @@ export default function BoardCard(
     const authorLabel = userId === authorId ? "You" : authorName;   
 
     const createdAtLabel = formatDistanceToNow(createdAt, { addSuffix: true });
+    
     return (
         <Link href={`/board/${id}`}>
             <div className="group aspect-[100/127] border rounded-lg flex flex-col justify-between overflow-hidden">

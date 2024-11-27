@@ -25,9 +25,7 @@ const BoardList = ({ searchParams }: BoardListProps) => {
   const { organization } = useOrganization();
 
   if (!organization) throw new Error("Organization not found");
-  console.log(organization.id);
   const boards = useQuery(api.boards.get, { orgId: organization.id });
-  console.log(boards);
   if (boards == undefined) {
     return "Loading...";
   }
