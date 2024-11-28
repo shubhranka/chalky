@@ -25,7 +25,10 @@ const BoardList = ({ searchParams }: BoardListProps) => {
   const { organization } = useOrganization();
 
   if (!organization) throw new Error("Organization not found");
-  const boards = useQuery(api.boards.get, { orgId: organization.id });
+  const boards = useQuery(api.boards.get, { orgId: organization.id, 
+    favorite: Boolean(searchParams.favourite),
+    search: searchParams.search
+   });
   if (boards == undefined) {
     return "Loading...";
   }
@@ -43,6 +46,22 @@ const BoardList = ({ searchParams }: BoardListProps) => {
       toast.error("Failed to create board");
     }
   };
+
+  if (Boolean(searchParams.favourite) && boards.length === 0) {
+    return (
+      <div className="h-full w-full flex flex-col items-center justify-center">
+          <ImageWithDownTitle src={"/emptyFavourites.png"} title={"No Favourite Board Found"}/>
+      </div>
+  )
+  }
+
+  if (searchParams.search && boards.length === 0) {
+    return (
+      <div className="h-full w-full flex flex-col items-center justify-center">
+          <ImageWithDownTitle src={"/no-results-found.png"} title={"No Results Found"}/>
+      </div>
+  )
+  }
 
   if (boards.length === 0) {
     return (
@@ -65,15 +84,21 @@ const BoardList = ({ searchParams }: BoardListProps) => {
     );
   }
 
+  // if (Boolean(searchParams.favourite)) {
+  //   return <FavouriteBoard data={boards} searchParams={searchParams} />;
+  // }
+
   return (
     <div className="h-full">
-      <FavouriteBoard data={boards} searchParams={searchParams} />
-      <SearchBoards data={boards} searchParams={searchParams} />
+      {/* <FavouriteBoard data={boards} searchParams={searchParams} />
+      <SearchBoards data={boards} searchParams={searchParams} /> */}
+      
+      
       <div
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4
                             xl:grid-cols-5 2xl:grid-cols-6 gap-5 mt-8 pb-10"
       >
-        <NewBoardButton createBoard={handleClick} pending={pending} />
+        {!Boolean(searchParams.favourite) && <NewBoardButton createBoard={handleClick} pending={pending} />}
         {pending && <BoardCard.Skeleton />}
         {boards.map((board: any) => {
           return (
@@ -85,7 +110,7 @@ const BoardList = ({ searchParams }: BoardListProps) => {
               authorId={board.authorId}
               authorName={board.authorName}
               imageUrl={board.imageUrl}
-              isFavorite={false}
+              isFavorite={board.isFavorite}
               orgId={board.orgId}
             />
           );

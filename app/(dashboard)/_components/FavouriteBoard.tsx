@@ -1,4 +1,6 @@
+import { useQuery } from "convex/react";
 import ImageWithDownTitle from "./ImageWithDownTitle";
+import { api } from "@/convex/_generated/api";
 
 interface FavouriteBoardProps {
     searchParams?: {
@@ -10,9 +12,9 @@ interface FavouriteBoardProps {
 const FavouriteBoard = ({searchParams,data} : FavouriteBoardProps) => {
     if(!(searchParams?.favourite)) return null;
 
-    const favourite = false
 
-    if(!favourite){
+
+    if(!data || data.length === 0){
         return (
             <div className="h-full w-full flex flex-col items-center justify-center">
                 <ImageWithDownTitle src={"/emptyFavourites.png"} title={"No Favourite Board Found"}/>

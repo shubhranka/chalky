@@ -1,12 +1,13 @@
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
-import { Star } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 
 interface FooterProps {
     title: string;
     authorLabel: string;
     createdAt: string;
     isFavourite: boolean;
-    onClick: () => void;
+    onClick: (e:any) => void;
     disabled: boolean;
 }
 export default function Footer(
@@ -25,13 +26,16 @@ export default function Footer(
                     "opacity-0 group-hover:opacity-100 transition duration-125 absolute top-3 right-3 text-muted-foreground hover:text-pink-500",
                     disabled && "cursor-not-allowed opacity-75"
                 )}
-            >
-                <Star
+            >   
+                {disabled && <Spinner
+                    className="h-4 w-4 text-muted-foreground"
+                />}
+                {!disabled && <Star
                     className={cn(
                         "h-4 w-4",
                         isFavourite ? "fill-pink-600 text-pink-600" : "text-muted-foreground"
                     )}
-                ></Star>
+                ></Star>}
 
             </button>
         </div>

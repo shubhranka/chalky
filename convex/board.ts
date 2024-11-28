@@ -47,6 +47,11 @@ export const remove = mutation({
       throw new Error("Unauthorized");
     }
 
+    const favouriteBoards = await ctx.db.query("favouriteBoards").withIndex("byBoard", (q) => q.eq("boardId", args.id)).collect();
+    for (const favouriteBoard of favouriteBoards) {
+      await ctx.db.delete(favouriteBoard._id);
+    }
+
     try {
       await ctx.db.delete(args.id);
     } catch (error) {
@@ -151,6 +156,6 @@ export const removeFavourite = mutation({
         throw new Error("Board not favourited");
     }
 
-    await ctx.db.delete(args.boardId);
+    await ctx.db.delete(existingFavourite._id);
   },
 })

@@ -7,6 +7,8 @@ import { formatDistanceToNow } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import Actions from "@/components/actions";
 import { MoreHorizontalIcon } from "lucide-react";
+import { useApiMutation } from "../../../hooks/api-mutation";
+import { api } from "@/convex/_generated/api";
 
 interface BoardCardProps {
     id: string;
@@ -26,7 +28,20 @@ export default function BoardCard(
     const authorLabel = userId === authorId ? "You" : authorName;   
 
     const createdAtLabel = formatDistanceToNow(createdAt, { addSuffix: true });
-    
+
+    const {mutate: addToFavourite, pending} = useApiMutation(api.board.addFavourite);
+    const {mutate: removeFromFavourite, pending: removePending} = useApiMutation(api.board.removeFavourite);
+
+    const favouriteHandler = (e:any) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (isFavorite) {
+            removeFromFavourite({boardId: id, orgId});
+        } else {
+            addToFavourite({boardId: id, orgId});
+        }
+    }
+     
     return (
         <Link href={`/board/${id}`}>
             <div className="group aspect-[100/127] border rounded-lg flex flex-col justify-between overflow-hidden">
@@ -57,8 +72,8 @@ export default function BoardCard(
                     authorLabel={authorLabel}
                     createdAt={createdAtLabel}
                     isFavourite={isFavorite}
-                    onClick={() => {}}
-                    disabled={false}
+                    onClick={favouriteHandler}
+                    disabled={pending || removePending}
                 />
             </div>
         </Link>
