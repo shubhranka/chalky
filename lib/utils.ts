@@ -22,7 +22,7 @@ export function getUserColor(connectionId: number) {
   // return 
 }
 
-const pointerEventToCanvasPoint = (camera: Camera, e: PointerEvent): Point => {
+export const pointerEventToCanvasPoint = (camera: Camera, e: PointerEvent): Point => {
   const rect = (e.target as HTMLElement).getBoundingClientRect();
   return {
     x: (e.clientX - rect.left) / camera.scale + camera.x,

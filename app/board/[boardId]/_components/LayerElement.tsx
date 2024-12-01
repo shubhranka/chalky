@@ -1,11 +1,16 @@
-import { LayerType } from "@/types";
+import { LayerType, Point } from "@/types";
 import { useStorage } from "@liveblocks/react/suspense";
 
 interface LayerProps {
     layerId: string;
+    selectionColor?: string;
+    onLayerPointerDown: (e: PointerEvent, layerId: string) => void;
 }
 const LayerElement = (
-    { layerId }: LayerProps
+    { layerId,
+    selectionColor,
+    onLayerPointerDown,
+    }: LayerProps
 ) => {
     const layer = useStorage(storage => storage.layers.get(layerId));
     if (!layer) {
@@ -23,6 +28,9 @@ const LayerElement = (
                         transform: `translate(${layer.position.x}px, ${layer.position.y}px)`,
                     }}
                     className="drop-shadow-lg"
+                    stroke={selectionColor || "transparent"}
+                    onPointerDown={(e) => onLayerPointerDown(e as any, layerId)}
+                    strokeWidth={selectionColor ? 2 : 0}
                 />
         default:
             return null;
