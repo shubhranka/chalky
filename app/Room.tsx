@@ -6,12 +6,26 @@ import {
   RoomProvider,
   ClientSideSuspense,
 } from "@liveblocks/react/suspense";
+import { LiveList, LiveMap } from "@liveblocks/client";
 
-export function Room({ children, roomId }: { children: ReactNode, roomId: string }) {
+export function Room({ children, roomId, fallback }: { children: ReactNode, roomId: string, fallback?: ReactNode }) {
   return (
-    <LiveblocksProvider publicApiKey={"pk_dev_8TF2aln2cyGV617kkEM6Pemg-FJGQ7NThuHMBuIFqforDh085oI_kQEJs5aGxh_e"}>
-      <RoomProvider id={roomId}>
-        <ClientSideSuspense fallback={<div>Loading…</div>}>
+    <LiveblocksProvider authEndpoint={"/api/liveblocks-auth"} throttle={16} >
+      <RoomProvider id={roomId} initialPresence={
+        {
+          cursor: {
+            x: -1,
+            y: -1
+          },
+          selection: []
+        }
+      }
+      initialStorage={{
+        layers: new LiveMap(),
+        layerIds: new LiveList([])
+      }}
+      >
+        <ClientSideSuspense fallback={fallback}>
           {children}
         </ClientSideSuspense>
       </RoomProvider>

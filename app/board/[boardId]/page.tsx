@@ -1,7 +1,19 @@
+import { Room } from "@/app/Room";
 import Canvas from "./_components/Canvas";
+import Loader from "./_components/Loader";
 
-export default function BoardIdPage (){
+interface BoardIdPageProps {
+    params: {
+        boardId: string;
+    };
+}
+
+export default function BoardIdPage (
+    { params: { boardId } }: BoardIdPageProps
+){
     return (
-            <Canvas />
+        <Room roomId={boardId} fallback={<Loader/>}>
+            <Canvas boardId={boardId} />
+        </Room>
     )
 }
