@@ -11,6 +11,7 @@ import LayerElement from "./LayerElement";
 import { nanoid } from "nanoid";
 import { LiveObject } from "@liveblocks/client";
 import { getUserColor, pointerEventToCanvasPoint } from "@/lib/utils";
+import SelectionBox from "./SelectionBox";
 
 interface CanvasProps {
     boardId: string;
@@ -166,6 +167,7 @@ export default function Canvas (
                     {layerIds.map(layerId => (
                         <LayerElement onLayerPointerDown={onPointerPress} key={layerId} layerId={layerId} selectionColor={selectedLayerIdMappedColor[layerId]} />
                     ))}
+                    <SelectionBox onResizeHandler={()=>{}} />
                     <CursorPresence />
                 </g>
             </svg>
