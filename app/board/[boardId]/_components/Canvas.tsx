@@ -1,16 +1,16 @@
 "use client"
-import { Camera, CanvasMode, CanvasState, Color, Layer, LayerType, Point } from "@/types";
+import { Camera, CanvasMode, CanvasState, Color, Layer, LayerType, Point, Side, XYWH } from "@/types";
 import Info from "./Info";
 import Participents from "./Participents";
 import Toolbar from "./Toolbar";
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useCanRedo, useCanUndo, useHistory, useMutation, useRedo, useUndo } from "@liveblocks/react";
 import CursorPresence from "./CursorPresence";
 import {useOthersMapped, useSelf, useStorage } from "@liveblocks/react/suspense";
 import LayerElement from "./LayerElement";
 import { nanoid } from "nanoid";
 import { LiveObject } from "@liveblocks/client";
-import { getUserColor, pointerEventToCanvasPoint } from "@/lib/utils";
+import { getUserColor, pointerEventToCanvasPoint, resizeLayer } from "@/lib/utils";
 import SelectionBox from "./SelectionBox";
 
 interface CanvasProps {
@@ -23,20 +23,44 @@ export default function Canvas (
     { boardId }: CanvasProps
 ) {
     const self = useSelf();
+    const [canvasState, setCanvasState] = useState<CanvasState>({mode: CanvasMode.None});
     const camera : Camera = {
         x: 0,
         y: 0,
         scale: 1,
     };
-    const onPointerMove = useMutation(({setMyPresence}, e: React.PointerEvent) => {
+    const onPointerMove = useMutation(({setMyPresence}, e:React.PointerEvent) => {
         e.preventDefault();
+        const point = pointerEventToCanvasPoint(camera, e);
+        if (canvasState.mode === CanvasMode.Resizing) {
+            // resizeSelectedLayer({
+            //     x: e.clientX,
+            //     y: e.clientY,
+            // });
+            resizeSelectedLayer(point);
+        }
         setMyPresence({
-            cursor: {
-                x: e.clientX,
-                y: e.clientY
-            }
+            cursor: point,
         });
-    },[]);
+    },[canvasState]);
+
+    const resizeSelectedLayer = useMutation(({storage}, p: Point) => {
+        if (canvasState.mode !== CanvasMode.Resizing) return;
+        const layerId = self.presence.selection[0];
+        if (!layerId) return;
+        const layer = storage.get("layers").get(layerId);
+        if (!layer) return;
+        const bounds = canvasState.initialBounds;
+        const neBounds = resizeLayer(canvasState.side, bounds, p);
+
+
+        layer.update({
+            position: {x: neBounds.x, y: neBounds.y},
+            size: {x: neBounds.w, y: neBounds.h},   
+        })
+
+    }, [canvasState, self.presence.selection]);
+
     const onPointerLeave = useMutation(({setMyPresence}) => {
         setMyPresence({
             cursor: {
@@ -75,7 +99,7 @@ export default function Canvas (
         })
     }, [lastColor]);
     const history = useHistory();
-    const [canvasState, setCanvasState] = useState<CanvasState>({mode: CanvasMode.None});
+    
 
     const onMouseUp = useMutation(({},e) => {
         if (canvasState.mode === CanvasMode.Inserting) {
@@ -103,10 +127,6 @@ export default function Canvas (
 
     const selectedLayerIdMappedColor = useMemo(() => {
         const selectedLayerIdMappedColor: Record<string, string> = {};
-        // selections.forEach((selection, connectionId) => {
-        //     for (const layerId of selection)
-        //         selectedLayerIdMappedColor[layerId] = getUserColor(connectionId);
-        // });
         for (const user of selections) {
             const [connectionId, selection] = user;
 
@@ -114,10 +134,9 @@ export default function Canvas (
                 selectedLayerIdMappedColor[layerId] = getUserColor(connectionId);
             }
         }
-        console.log(selectedLayerIdMappedColor);
         return selectedLayerIdMappedColor;
     },[selections]);
-    const onPointerPress = useMutation(({setMyPresence}, e: PointerEvent, layerId: string) => {
+    const onPointerPress = useMutation(({setMyPresence}, e: React.PointerEvent, layerId: string) => {
 
         if (canvasState.mode === CanvasMode.Inserting ||
             canvasState.mode === CanvasMode.Pencil) 
@@ -145,6 +164,19 @@ export default function Canvas (
         canvasState.mode
     ]);
 
+    const onResizeHandler = useCallback((corner: Side, bounds: XYWH ) => {
+        if (canvasState.mode === CanvasMode.Inserting ||
+            canvasState.mode === CanvasMode.Pencil) 
+            return;
+        history.pause();
+
+        setCanvasState({
+            mode: CanvasMode.Resizing,
+            initialBounds: bounds,
+            side: corner,
+        });
+    }
+    , [canvasState, history]);
 
     return (
         <div className="h-full w-full realtive bg-neutral-100">
@@ -167,7 +199,7 @@ export default function Canvas (
                     {layerIds.map(layerId => (
                         <LayerElement onLayerPointerDown={onPointerPress} key={layerId} layerId={layerId} selectionColor={selectedLayerIdMappedColor[layerId]} />
                     ))}
-                    <SelectionBox onResizeHandler={()=>{}} />
+                    <SelectionBox onResizeHandler={onResizeHandler} />
                     <CursorPresence />
                 </g>
             </svg>

@@ -26,8 +26,8 @@ const  SelectionBox = memo((
             <rect
                 x={x}
                 y={y}
-                width={w-x}
-                height={h-y}
+                width={w}
+                height={h}
                 fill="transparent"
                 stroke="blue"
                 strokeWidth={2}
@@ -41,77 +41,77 @@ const  SelectionBox = memo((
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "nwse-resize"}}
-                // onPointerDown={(e) => onResizeHandler(Side.Left | Side.Bottom, bounds)}
+                onPointerDown={(e) => onResizeHandler(Side.Left | Side.Top, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
-                x={w-HANDLE_WIDTH/2}
-                y={h-HANDLE_WIDTH/2}
+                x={x+ w-HANDLE_WIDTH/2}
+                y={y+ h-HANDLE_WIDTH/2}
                 width={HANDLE_WIDTH}
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "se-resize"}}
-                // onPointerDown={(e) => onResizeHandler(Side.Left | Side.Bottom, bounds)}
+                onPointerDown={(e) => onResizeHandler(Side.Right | Side.Bottom, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
-                x={w-HANDLE_WIDTH/2}
+                x={x + w-HANDLE_WIDTH/2}
                 y={y-HANDLE_WIDTH/2}
                 width={HANDLE_WIDTH}
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "sw-resize"}} 
-                // onPointerDown={(e) => onResizeHandler(Side.Left | Side.Bottom, bounds)}
+                onPointerDown={(e) => onResizeHandler(Side.Right | Side.Top, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
                 x={x-HANDLE_WIDTH/2}
-                y={h-HANDLE_WIDTH/2}
+                y={y + h-HANDLE_WIDTH/2}
                 width={HANDLE_WIDTH}
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "ne-resize"}}
-                // onPointerDown={(e) => onResizeHandler(Side.Left | Side.Bottom, bounds)}
+                onPointerDown={(e) => onResizeHandler(Side.Left | Side.Bottom, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
-                x={x + (w-x)/2-HANDLE_WIDTH/2}
+                x={x + w/2-HANDLE_WIDTH/2}
                 y={y-HANDLE_WIDTH/2}
                 width={HANDLE_WIDTH}
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "n-resize"}}
-                // onPointerDown={(e) => onResizeHandler(Side.Left | Side.Bottom, bounds)}
+                onPointerDown={(e) => onResizeHandler(Side.Top, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
-                x={w-HANDLE_WIDTH/2}
-                y={y + (h-y)/2-HANDLE_WIDTH/2}
+                x={x + w-HANDLE_WIDTH/2}
+                y={y + h/2-HANDLE_WIDTH/2}
                 width={HANDLE_WIDTH}
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "e-resize"}}
-                // onPointerDown={(e) => onResizeHandler(Side.Left | Side.Bottom, bounds)}
+                onPointerDown={(e) => onResizeHandler(Side.Right, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
-                x={x + (w-x)/2-HANDLE_WIDTH/2}
-                y={h-HANDLE_WIDTH/2}
+                x={x + w/2-HANDLE_WIDTH/2}
+                y={y + h-HANDLE_WIDTH/2}
                 width={HANDLE_WIDTH}
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "s-resize"}}
-                // onPointerDown={(e) => onResizeHandler(Side.Left | Side.Bottom, bounds)}
+                onPointerDown={(e) => onResizeHandler(Side.Bottom, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
                 x={x-HANDLE_WIDTH/2}
-                y={y + (h-y)/2-HANDLE_WIDTH/2}
+                y={y + h/2-HANDLE_WIDTH/2}
                 width={HANDLE_WIDTH}
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "w-resize"}}
-                // onPointerDown={(e) => onResizeHandler(Side.Left | Side.Bottom, bounds)}
+                onPointerDown={(e) => onResizeHandler(Side.Left, bounds)}
                 stroke="blue"
             />}
         </>

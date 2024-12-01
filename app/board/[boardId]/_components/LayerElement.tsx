@@ -4,7 +4,7 @@ import { useStorage } from "@liveblocks/react/suspense";
 interface LayerProps {
     layerId: string;
     selectionColor?: string;
-    onLayerPointerDown: (e: PointerEvent, layerId: string) => void;
+    onLayerPointerDown: (e: React.PointerEvent, layerId: string) => void;
 }
 const LayerElement = (
     { layerId,
@@ -29,7 +29,7 @@ const LayerElement = (
                     }}
                     className="drop-shadow-lg"
                     stroke={selectionColor || "transparent"}
-                    onPointerDown={(e) => onLayerPointerDown(e as any, layerId)}
+                    onPointerDown={(e) => onLayerPointerDown(e, layerId)}
                     strokeWidth={selectionColor ? 2 : 0}
                 />
         default:
