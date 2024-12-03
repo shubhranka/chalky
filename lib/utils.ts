@@ -1,4 +1,5 @@
-import { Camera, Point, Side, XYWH } from "@/types"
+import { Camera, Layer, Point, Side, XYWH } from "@/types"
+import { LiveMap, LiveObject } from "@liveblocks/client"
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -76,4 +77,36 @@ export const translateLayer = (position: Point, mousePoint: Point): Point => {
     x: position.x - mousePoint.x,
     y: position.y - mousePoint.y,
   }
+}
+
+
+export const findIntersectingLayers = (layers: ReadonlyMap<string, Layer>, from: Point, to: Point) => {
+  // return layers.filter(layer => {
+  //   return (layer.position.x < to.x && layer.position.x + layer.size.x > from.x) &&
+  //     (layer.position.y < to.y && layer.position.y + layer.size.y > from.y)
+  // })
+
+  return Array.from(layers.values()).filter(layer => {
+
+    if (from.x > to.x && from.y > to.y) {
+      return (layer.position.x < from.x && layer.position.x + layer.size.x > to.x) &&
+        (layer.position.y < from.y && layer.position.y + layer.size.y > to.y)
+    }
+
+    if (from.x < to.x && from.y < to.y) {
+      return (layer.position.x < to.x && layer.position.x + layer.size.x > from.x) &&
+        (layer.position.y < to.y && layer.position.y + layer.size.y > from.y)
+    }
+
+    if (from.x < to.x && from.y > to.y) {
+      return (layer.position.x < to.x && layer.position.x + layer.size.x > from.x) &&
+        (layer.position.y < from.y && layer.position.y + layer.size.y > to.y)
+    }
+
+    if (from.x > to.x && from.y < to.y) {
+      return (layer.position.x < from.x && layer.position.x + layer.size.x > to.x) &&
+        (layer.position.y < to.y && layer.position.y + layer.size.y > from.y)
+    }
+  })
+
 }

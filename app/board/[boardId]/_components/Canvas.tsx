@@ -32,6 +32,7 @@ import LayerElement from "./LayerElement";
 import { nanoid } from "nanoid";
 import { LiveObject } from "@liveblocks/client";
 import {
+    findIntersectingLayers,
   getUserColor,
   pointerEventToCanvasPoint,
   resizeLayer,
@@ -39,6 +40,7 @@ import {
 } from "@/lib/utils";
 import SelectionBox from "./SelectionBox";
 import LayerTools from "./LayerTools";
+import SelectionNetLayer from "./SelectionNetLayer";
 
 interface CanvasProps {
   boardId: string;
@@ -57,6 +59,37 @@ export default function Canvas({ boardId }: CanvasProps) {
     scale: 1,
   });
 
+
+
+  const checkForSelectionNet = useCallback((origin: Point, position: Point) => {
+    const dx = Math.abs(origin.x - position.x);
+    const dy = Math.abs(origin.y - position.y);
+    if (dx > 5 || dy > 5) {
+      setCanvasState({
+        mode: CanvasMode.SelectionNet,
+        origin,
+        position,
+      });
+    }
+  },[])
+
+  const updateSelectionNet = useMutation(({ storage, setMyPresence }, origin: Point, position: Point) => {
+      setCanvasState({
+        mode: CanvasMode.SelectionNet,
+        origin: origin,
+        position,
+      });
+
+      const layers = storage.get("layers").toImmutable();
+
+      const layersInSelection = findIntersectingLayers(layers, origin, position);
+      const layerIds = layersInSelection.map(layer => layer.id);
+      
+      setMyPresence(
+        {selection:[...layerIds]}
+      )
+  },[])
+
   const onPointerMove = useMutation(
     ({ setMyPresence }, e: React.PointerEvent) => {
       e.preventDefault();
@@ -64,7 +97,13 @@ export default function Canvas({ boardId }: CanvasProps) {
       if (canvasState.mode === CanvasMode.Resizing) {
         resizeSelectedLayer(point);
       }
-      if (canvasState.mode === CanvasMode.Translating) {
+      else if(canvasState.mode === CanvasMode.Pressing){
+        checkForSelectionNet(canvasState.origin, point);
+      }
+      else if(canvasState.mode === CanvasMode.SelectionNet){
+          updateSelectionNet(canvasState.origin, point);
+      }
+      else if (canvasState.mode === CanvasMode.Translating) {
         translateSelectedLayer(point);
       }
       setMyPresence({
@@ -109,6 +148,7 @@ export default function Canvas({ boardId }: CanvasProps) {
       if (!layer) return;
       const bounds = canvasState.initialBounds;
       const neBounds = resizeLayer(canvasState.side, bounds, p);
+
 
       layer.update({
         position: { x: neBounds.x, y: neBounds.y },
@@ -176,6 +216,9 @@ export default function Canvas({ boardId }: CanvasProps) {
       },
       { addToHistory: true }
     );
+    setCanvasState({
+      mode: CanvasMode.None,
+    })
   }, []);
   const onMouseUp = useMutation(
     ({}, e) => {
@@ -260,7 +303,6 @@ export default function Canvas({ boardId }: CanvasProps) {
         initialBounds: bounds,
         side: corner,
       });
-      console.log("set to resize");
     },
     [canvasState, history, setCanvasState]
   );
@@ -371,6 +413,9 @@ export default function Canvas({ boardId }: CanvasProps) {
         <g
           transform={`translate(${camera.x},${camera.y}) scale(${camera.scale})`}
         >
+        {canvasState.mode === CanvasMode.SelectionNet && (
+            <SelectionNetLayer from={canvasState.origin} to={canvasState.position!} />
+        )}
           {layerIds.map((layerId) => (
             <LayerElement
               onLayerPointerDown={onPointerPress}

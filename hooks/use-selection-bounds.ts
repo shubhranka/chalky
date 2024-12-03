@@ -1,32 +1,36 @@
 import { Layer, XYWH } from "@/types";
 import { shallow, useStorage } from "@liveblocks/react";
 import { useSelf } from "@liveblocks/react/suspense";
-import { join } from "path";
 
 const boundingBox = (layers: Layer[]): XYWH | null => {
     const first = layers[0];
     if (!first) return null;
+
+    console.log(layers);
 
     let x = first.position.x;
     let y = first.position.y;
     let w = first.size.x;
     let h = first.size.y;
 
+    let tox = x + w;
+    let toy = y + h;
+
 
     for(const layer of layers){
-        if (layer.position.x < x) {
-            x = layer.position.x;
-        }
-        if (layer.position.y < y) {
-            y = layer.position.y;
-        }
-        if (layer.position.x + layer.size.x > (x + w)) {
-            w = layer.position.x + layer.size.x - x;
-        }
-        if (layer.position.y + layer.size.y > (y + h)) {
-            h = layer.position.y + layer.size.y - y;
-        }
+        const layerx = layer.position.x;
+        const layery = layer.position.y;
+        const layertox = layer.position.x + layer.size.x;
+        const layertoy = layer.position.y + layer.size.y;
+
+        if(layerx < x) x = layerx;
+        if(layery < y) y = layery;
+        if(layertox > tox) tox = layertox;
+        if(layertoy > toy) toy = layertoy;
     }
+
+    w = tox - x;
+    h = toy - y;
 
     return {x,y,w,h};
 }
