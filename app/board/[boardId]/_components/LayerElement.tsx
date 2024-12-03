@@ -23,7 +23,7 @@ const LayerElement = (
                     y={0}
                     width={layer.size.x}
                     height={layer.size.y}
-                    fill={`rgba(${layer.fill.r},${layer.fill.g},${layer.fill.b},${layer.fill.a})`}
+                    fill={`rgb(${layer.fill.r},${layer.fill.g},${layer.fill.b})`}
                     style={{
                         transform: `translate(${layer.position.x}px, ${layer.position.y}px)`,
                     }}

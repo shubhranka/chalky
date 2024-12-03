@@ -51,6 +51,7 @@ export type PathLayer = {
     id: string,
     stroke: Color,
     position: Point,
+    fill: Color,
     size: Point,
     points: Point[],
     value?: string,
@@ -62,6 +63,7 @@ export type TextLayer = {
     stroke: Color,
     position: Point,
     size: Point,
+    fill: Color,
     rotation: number,
     value?: string,
 }

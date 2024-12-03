@@ -1,9 +1,9 @@
 import { useSelectionBounds } from "@/hooks/use-selection-bounds";
 import { LayerType, Point, Side, XYWH } from "@/types";
 import { useSelf, useStorage } from "@liveblocks/react/suspense";
-import { memo } from "react";
+import React, { memo } from "react";
 interface SelectionBoxProps {
-    onResizeHandler: (corner: Side, initialBound: XYWH) => void;
+    onResizeHandler: (e: React.PointerEvent,orner: Side, initialBound: XYWH) => void;
     onTranslateHandler: (e:React.PointerEvent) => void;
 }
 const  SelectionBox = memo((
@@ -46,7 +46,7 @@ const  SelectionBox = memo((
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "nwse-resize"}}
-                onPointerDown={(e) => onResizeHandler(Side.Left | Side.Top, bounds)}
+                onPointerDown={(e) => onResizeHandler(e,Side.Left | Side.Top, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
@@ -56,7 +56,7 @@ const  SelectionBox = memo((
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "se-resize"}}
-                onPointerDown={(e) => onResizeHandler(Side.Right | Side.Bottom, bounds)}
+                onPointerDown={(e) => onResizeHandler(e,Side.Right | Side.Bottom, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
@@ -66,7 +66,7 @@ const  SelectionBox = memo((
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "sw-resize"}} 
-                onPointerDown={(e) => onResizeHandler(Side.Right | Side.Top, bounds)}
+                onPointerDown={(e) => onResizeHandler(e,Side.Right | Side.Top, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
@@ -76,7 +76,7 @@ const  SelectionBox = memo((
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "ne-resize"}}
-                onPointerDown={(e) => onResizeHandler(Side.Left | Side.Bottom, bounds)}
+                onPointerDown={(e) => onResizeHandler(e,Side.Left | Side.Bottom, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
@@ -86,7 +86,7 @@ const  SelectionBox = memo((
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "n-resize"}}
-                onPointerDown={(e) => onResizeHandler(Side.Top, bounds)}
+                onPointerDown={(e) => onResizeHandler(e,Side.Top, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
@@ -96,7 +96,7 @@ const  SelectionBox = memo((
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "e-resize"}}
-                onPointerDown={(e) => onResizeHandler(Side.Right, bounds)}
+                onPointerDown={(e) => onResizeHandler(e,Side.Right, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
@@ -106,7 +106,7 @@ const  SelectionBox = memo((
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "s-resize"}}
-                onPointerDown={(e) => onResizeHandler(Side.Bottom, bounds)}
+                onPointerDown={(e) => onResizeHandler(e,Side.Bottom, bounds)}
                 stroke="blue"
             />}
             {isShowingHandle && <rect
@@ -116,7 +116,7 @@ const  SelectionBox = memo((
                 height={HANDLE_WIDTH}
                 fill="white"
                 style={{cursor: "w-resize"}}
-                onPointerDown={(e) => onResizeHandler(Side.Left, bounds)}
+                onPointerDown={(e) => onResizeHandler(e,Side.Left, bounds)}
                 stroke="blue"
             />}
         </>
