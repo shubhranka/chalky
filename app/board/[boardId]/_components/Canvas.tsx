@@ -57,24 +57,10 @@ export default function Canvas({ boardId }: CanvasProps) {
     scale: 1,
   });
 
-  // const camera = useMemo(() => ({
-  //     x: 0,
-  //     y: 0,
-  //     scale: 1,
-  // }),[]);
   const onPointerMove = useMutation(
     ({ setMyPresence }, e: React.PointerEvent) => {
       e.preventDefault();
       const point = pointerEventToCanvasPoint(camera, e);
-
-      console.log("Canvase Resizing", canvasState.mode === CanvasMode.Resizing);
-      console.log("Canvase Translating", canvasState.mode === CanvasMode.Translating);
-      console.log("Canvase Pressing", canvasState.mode === CanvasMode.Pressing);
-      console.log("Canvase Inserting", canvasState.mode === CanvasMode.Inserting);
-      console.log("Canvase Pencil", canvasState.mode === CanvasMode.Pencil);
-      console.log("Canvase Processing", canvasState.mode === CanvasMode.Processing);
-      console.log("Canvase SelectionNet", canvasState.mode === CanvasMode.SelectionNet);
-      console.log("Canvase None", canvasState.mode === CanvasMode.None);
       if (canvasState.mode === CanvasMode.Resizing) {
         resizeSelectedLayer(point);
       }
@@ -123,7 +109,6 @@ export default function Canvas({ boardId }: CanvasProps) {
       if (!layer) return;
       const bounds = canvasState.initialBounds;
       const neBounds = resizeLayer(canvasState.side, bounds, p);
-      console.log(neBounds);
 
       layer.update({
         position: { x: neBounds.x, y: neBounds.y },
@@ -194,7 +179,6 @@ export default function Canvas({ boardId }: CanvasProps) {
   }, []);
   const onMouseUp = useMutation(
     ({}, e) => {
-      console.log("On up");
       if (
         canvasState.mode === CanvasMode.Pressing ||
         canvasState.mode === CanvasMode.None
@@ -341,6 +325,23 @@ export default function Canvas({ boardId }: CanvasProps) {
     [self.presence.selection, lastColor, setLastColor]
   );
 
+  const onDeleteLayer = useMutation(
+    ({ storage, setMyPresence }) => {
+        const selectedLayers = self.presence.selection;
+        const layers = storage.get("layers");
+        for (const layerId of selectedLayers) {
+            layers.delete(layerId);
+        }
+      setMyPresence(
+        {
+          selection: [],
+        },
+        { addToHistory: true }
+      );
+    },
+    [self.presence.selection]
+  );
+
   return (
     <div className="h-full w-full realtive bg-neutral-100">
       <Info boardId={boardId} />
@@ -357,6 +358,7 @@ export default function Canvas({ boardId }: CanvasProps) {
         camera={camera}
         lastUsedColor={lastColor}
         setLastUsedColor={onHandleColorPick}
+        deleteLayer={onDeleteLayer}
       />
       <svg
         className="h-[100vh] w-[100vw]"
