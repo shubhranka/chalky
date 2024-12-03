@@ -70,3 +70,10 @@ export const resizeLayer = (corner: Side, initialBounds: XYWH, p: Point) => {
   }
   return bounds;
 }
+
+export const translateLayer = (position: Point, mousePoint: Point): Point => {
+  return {
+    x: position.x - mousePoint.x,
+    y: position.y - mousePoint.y,
+  }
+}

@@ -1,12 +1,16 @@
 import { useSelectionBounds } from "@/hooks/use-selection-bounds";
-import { LayerType, Side, XYWH } from "@/types";
+import { LayerType, Point, Side, XYWH } from "@/types";
 import { useSelf, useStorage } from "@liveblocks/react/suspense";
 import { memo } from "react";
 interface SelectionBoxProps {
     onResizeHandler: (corner: Side, initialBound: XYWH) => void;
+    onTranslateHandler: (e:React.PointerEvent) => void;
 }
 const  SelectionBox = memo((
-    { onResizeHandler }: SelectionBoxProps
+    { onResizeHandler,
+    onTranslateHandler,
+
+    }: SelectionBoxProps
 )=>{
 
     const HANDLE_WIDTH = 10;
@@ -32,6 +36,7 @@ const  SelectionBox = memo((
                 stroke="blue"
                 strokeWidth={2}
                 style={{pointerEvents: "none"}}
+                onPointerDown={(e) => onTranslateHandler(e)}
             />
 
             {isShowingHandle && <rect
