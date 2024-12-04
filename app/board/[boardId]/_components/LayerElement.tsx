@@ -1,6 +1,7 @@
 import { LayerType, Point } from "@/types";
 import { useStorage } from "@liveblocks/react/suspense";
 import Text from "./Text";
+import Path from "./Path";
 
 interface LayerProps {
     layerId: string;
@@ -62,6 +63,13 @@ const LayerElement = (
                 onPointerDown={onLayerPointerDown}
                 selectionColor={selectionColor}
                 />
+        case LayerType.Pencil:
+            return <Path
+                        id={layerId}
+                        layer={layer}
+                        onPointerDown={onLayerPointerDown}
+                        selectionColor={selectionColor}
+                        />
         default:
             return null;
 

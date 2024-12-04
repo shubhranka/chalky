@@ -113,7 +113,7 @@ export type  CanvasState =
     } |
     {
         mode: CanvasMode.Inserting,
-        layerType: LayerType.Ellipse | LayerType.Rectangle | LayerType.Text | LayerType.Sticky
+        layerType: LayerType.Ellipse | LayerType.Rectangle | LayerType.Text | LayerType.Sticky | LayerType.Pencil
     } |
     {
         mode: CanvasMode.Resizing,
@@ -126,6 +126,9 @@ export type  CanvasState =
     {
         mode: CanvasMode.Pressing,
         origin: Point,
+    } |
+    {
+        mode: CanvasMode.Drawing
     }
 
 
@@ -138,6 +141,7 @@ export enum CanvasMode {
     Resizing,
     Pencil,
     Pressing,
+    Drawing
 }
 
 export type Layer = RectangleLayer | EllipseLayer | PathLayer | TextLayer | NoteLayer

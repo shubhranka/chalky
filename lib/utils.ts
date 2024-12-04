@@ -143,3 +143,197 @@ export function getTextColor({r, g, b}: Color) {
   // Choose text color based on luminance
   return luminance < 0.5 ? '#FFFFFF' : '#000000';
 }
+
+export function pointsToSvgPath(points: Point[], options?: {
+  closePath?: boolean;
+  moveToFirst?: boolean;
+}) {
+  // Handle empty array case
+  if (points.length === 0) {
+    return {
+      pathString: '',
+      width: 0,
+      height: 0,
+      minX: 0,
+      minY: 0,
+      maxX: 0,
+      maxY: 0
+    };
+  }
+
+  // Default options
+  const {
+    closePath = false,
+    moveToFirst = true
+  } = options || {};
+
+  // Calculate min and max coordinates
+  const minX = Math.min(...points.map(p => p.x));
+  const maxX = Math.max(...points.map(p => p.x));
+  const minY = Math.min(...points.map(p => p.y));
+  const maxY = Math.max(...points.map(p => p.y));
+
+  // Calculate width and height
+  const width = maxX - minX;
+  const height = maxY - minY;
+
+  // Create the path commands
+  const pathCommands = points.map((point, index) => {
+    if (index === 0 && moveToFirst) {
+      // First point uses moveTo
+      return `M${point.x} ${point.y}`;
+    }
+    // Subsequent points use lineTo
+    return `L${point.x} ${point.y}`;
+  });
+
+  // Close the path if requested
+  if (closePath) {
+    pathCommands.push('Z');
+  }
+
+  // Join the commands into a single path string
+  const pathString = pathCommands.join(' ');
+
+  return {
+    pathString,
+    width,
+    height,
+    minX,
+    minY,
+    maxX,
+    maxY
+  };
+}
+
+// Cubic Bézier Curve Interpolation
+export function smoothPathBezier(points: Point[], tension: number = 0.3): string {
+  if (points.length < 2) return '';
+  
+  // If only two points, create a simple line
+  if (points.length === 2) {
+    return `M${points[0].x} ${points[0].y} L${points[1].x} ${points[1].y}`;
+  }
+
+  let pathCommands: string[] = [`M${points[0].x} ${points[0].y}`];
+
+  for (let i = 1; i < points.length - 1; i++) {
+    const prevPoint = points[i - 1];
+    const currentPoint = points[i];
+    const nextPoint = points[i + 1];
+
+    // Calculate control points
+    const controlPoint1X = currentPoint.x - (nextPoint.x - prevPoint.x) * tension;
+    const controlPoint1Y = currentPoint.y - (nextPoint.y - prevPoint.y) * tension;
+
+    const controlPoint2X = nextPoint.x + (nextPoint.x - prevPoint.x) * tension;
+    const controlPoint2Y = nextPoint.y + (nextPoint.y - prevPoint.y) * tension;
+
+    pathCommands.push(
+      `C${controlPoint1X} ${controlPoint1Y}, ` +
+      `${controlPoint2X} ${controlPoint2Y}, ` +
+      `${nextPoint.x} ${nextPoint.y}`
+    );
+  }
+
+  return pathCommands.join(' ');
+}
+
+// Cardinal Spline Interpolation
+export function smoothPathCardinal(points: Point[], tension: number = 0.5): string {
+  if (points.length < 2) return '';
+  
+  // If only two points, create a simple line
+  if (points.length === 2) {
+    return `M${points[0].x} ${points[0].y} L${points[1].x} ${points[1].y}`;
+  }
+
+  function getControlPoints(p0: Point, p1: Point, p2: Point, p3: Point, t: number) {
+    const d1 = Math.sqrt(Math.pow(p1.x - p0.x, 2) + Math.pow(p1.y - p0.y, 2));
+    const d2 = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+    const d3 = Math.sqrt(Math.pow(p3.x - p2.x, 2) + Math.pow(p3.y - p2.y, 2));
+
+    const fa = t * d1 / (d1 + d2);
+    const fb = t * d2 / (d1 + d2);
+    const fc = t * d2 / (d2 + d3);
+    const fd = t * d3 / (d2 + d3);
+
+    const p1x = p1.x + fa * (p2.x - p0.x);
+    const p1y = p1.y + fa * (p2.y - p0.y);
+    const p2x = p2.x - fb * (p3.x - p1.x);
+    const p2y = p2.y - fb * (p3.y - p1.y);
+
+    return {
+      control1: { x: p1x, y: p1y },
+      control2: { x: p2x, y: p2y }
+    };
+  }
+
+  let pathCommands: string[] = [`M${points[0].x} ${points[0].y}`];
+
+  for (let i = 1; i < points.length - 2; i++) {
+    const p0 = points[Math.max(0, i - 1)];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[Math.min(points.length - 1, i + 2)];
+
+    const { control1, control2 } = getControlPoints(p0, p1, p2, p3, tension);
+
+    pathCommands.push(
+      `C${control1.x} ${control1.y}, ` +
+      `${control2.x} ${control2.y}, ` +
+      `${p2.x} ${p2.y}`
+    );
+  }
+
+  return pathCommands.join(' ');
+}
+
+export function createSmoothPath(points: { x: number; y: number }[]): string {
+  if (points.length < 2) return '';
+
+  // Start with move to first point
+  let pathString = `M ${points[0].x} ${points[0].y}`;
+
+  // For very few points, just create a simple line
+  if (points.length === 2) {
+    return `${pathString} L ${points[1].x} ${points[1].y}`;
+  }
+
+  // Use smooth cubic Bézier curve (S command)
+  for (let i = 1; i < points.length; i++) {
+    // Calculate smooth control points
+    const prevPoint = points[i - 1];
+    const currentPoint = points[i];
+
+    // Reflect the last control point (simplified smooth curve)
+    const controlX = prevPoint.x + (currentPoint.x - prevPoint.x) / 2;
+    const controlY = prevPoint.y + (currentPoint.y - prevPoint.y) / 2;
+
+    pathString += ` S ${controlX} ${controlY}, ${currentPoint.x} ${currentPoint.y}`;
+  }
+
+  return pathString;
+}
+
+export function createDimensionsPath(points: { x: number; y: number }[]): XYWH {
+  const { minX, minY, maxX, maxY } = points.reduce(
+    (acc, point) => ({
+      minX: Math.min(acc.minX, point.x),
+      minY: Math.min(acc.minY, point.y),
+      maxX: Math.max(acc.maxX, point.x),
+      maxY: Math.max(acc.maxY, point.y),
+    }),
+    { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity }
+  );
+  const width = maxX - minX;
+  const height = maxY - minY;
+  return { x: minX, y: minY, w: width, h: height };
+}
+
+export function movePointsCloserToOrigin(points: { x: number; y: number }[], origin: Point): Point[] {
+  return points.map(point => ({
+    x: point.x - origin.x,
+    y: point.y - origin.y,
+  }));
+}

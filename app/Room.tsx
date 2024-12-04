@@ -17,7 +17,9 @@ export function Room({ children, roomId, fallback }: { children: ReactNode, room
             x: -1,
             y: -1
           },
-          selection: []
+          selection: [],
+          drawingPoints: [],
+          drawing: false
         }
       }
       initialStorage={{

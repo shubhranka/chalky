@@ -11,6 +11,8 @@ declare global {
       // Example, real-time cursor coordinates
       cursor: { x: number; y: number };
       selection: string[];
+      drawingPoints: { x: number; y: number }[];
+      drawing: boolean;
     };
 
     // The Storage tree for the room, for useMutation, useStorage, etc.
