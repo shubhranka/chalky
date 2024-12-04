@@ -1,6 +1,7 @@
-import { createSmoothPath } from "@/lib/utils";
+import { createSmoothPath, getSvgPathFromStroke } from "@/lib/utils";
 import { Color } from "@/types";
 import { useOther, useOthers, useSelf } from "@liveblocks/react/suspense";
+import getStroke from "perfect-freehand";
 
 interface LivePathProps {
     color: Color
@@ -14,7 +15,7 @@ const LivePath = (
     return (
         <>
         <path 
-            d={createSmoothPath(drawingPoints)} 
+            d={getSvgPathFromStroke(getStroke(drawingPoints))} 
             fill="none" 
             stroke={`rgb(${color.r},${color.g},${color.b})`} 
             strokeWidth="2" 
@@ -23,7 +24,7 @@ const LivePath = (
         {otherDrawingPoints.map((points, index) => (
             <path 
                 key={index} 
-                d={createSmoothPath(points)} 
+                d={getSvgPathFromStroke(getStroke(points))} 
                 fill="none" 
                 stroke={`rgb(${color.r},${color.g},${color.b})`} 
                 strokeWidth="2" 

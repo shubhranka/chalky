@@ -1,6 +1,6 @@
-import { createSmoothPath } from "@/lib/utils";
+import { getSvgPathFromStroke } from "@/lib/utils";
 import { PathLayer } from "@/types";
-import { useSelf } from "@liveblocks/react/suspense";
+import { getStroke } from 'perfect-freehand'
 
 interface PathProps {
     id: string
@@ -25,9 +25,8 @@ const Path = (
         >
         
         <path 
-            d={createSmoothPath(drawingPoints)} 
-            fill="transparent" 
-            stroke={`rgb(${layer.fill.r},${layer.fill.g},${layer.fill.b})`} 
+            d={getSvgPathFromStroke(getStroke(drawingPoints))}
+            fill={`rgb(${layer.fill.r},${layer.fill.g},${layer.fill.b})`} 
             strokeWidth={2} 
         />
             </svg>
