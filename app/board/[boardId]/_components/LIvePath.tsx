@@ -14,13 +14,13 @@ const LivePath = (
     const otherDrawingPoints = useOthers(others => others.map(o => o.presence.drawingPoints));
     return (
         <>
-        <path 
+        { drawingPoints && <path 
             d={getSvgPathFromStroke(getStroke(drawingPoints))} 
             fill="none" 
             stroke={`rgb(${color.r},${color.g},${color.b})`} 
             strokeWidth="2" 
             />
-
+        }
         {otherDrawingPoints.map((points, index) => (
             <path 
                 key={index} 

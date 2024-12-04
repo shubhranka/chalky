@@ -513,32 +513,26 @@ export default function Canvas({ boardId }: CanvasProps) {
       if (e.code === "Space") {
         e.preventDefault();
         setSpacebarPressed(false);
+      }else if (e.ctrlKey || e.metaKey) {
+        if (e.code === "KeyZ") {
+          undo();
+        } else if (e.code === "KeyY") {
+          redo();
+        }
       }
     },
-    [setSpacebarPressed]
+    [setSpacebarPressed, undo, redo]
   );
-  // const [cameraMousePosition, setCameraMousePosition] = useState<Point>({ x: 0, y: 0 });
 
-  // const justToCheckMouseMove = useCallback((e : MouseEvent) => {
-  //   const point = pointerEventToCanvasPoint(camera,e as any );
-  //   setCameraMousePosition(point);
-  // }, [
-  //   setCameraMousePosition,
-  //   camera,
-  // ]);
-
-  
   useEffect(() => {
     document.addEventListener("keydown", onKeyDownHandler);
     document.addEventListener("keyup", onKeyUpHandler);
-    // document.addEventListener("mousemove", justToCheckMouseMove)
     return () => {
       document.removeEventListener("keydown", onKeyDownHandler);
       document.removeEventListener("keyup", onKeyUpHandler);
     };
   }, [onKeyDownHandler, 
     onKeyUpHandler,
-    // justToCheckMouseMove
   ]);
 
   return (
@@ -564,17 +558,6 @@ export default function Canvas({ boardId }: CanvasProps) {
         setLastUsedColor={onHandleColorPick}
         deleteLayer={onDeleteLayer}
       />}
-      
-      {/* <div className="h-12 w-12 bg-slate-600 absolute" 
-        style={{
-          transform: `translate(${cameraMousePosition.x + 16}px, ${cameraMousePosition.y + 16}px)`
-        }} 
-      />
-      <div className="h-12 w-12 bg-red-600 absolute" 
-        style={{
-          transform: `translate(${camera.x}px, ${camera.y}px)`
-        }} 
-      /> */}
 
       <svg
         className="h-[100vh] w-[100vw]"
@@ -582,7 +565,6 @@ export default function Canvas({ boardId }: CanvasProps) {
         onPointerLeave={onPointerLeave}
         onPointerDown={onPointerDown}
         onPointerUp={onMouseUp}
-        // onWheel={onWheelHandler}
       >
         <g
           transform={`translate(${camera.x},${camera.y}) scale(${camera.scale})`}
