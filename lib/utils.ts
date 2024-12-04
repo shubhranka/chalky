@@ -1,4 +1,4 @@
-import { Camera, Layer, Point, Side, XYWH } from "@/types"
+import { Camera, Color, Layer, Point, Side, XYWH } from "@/types"
 import { LiveMap, LiveObject } from "@liveblocks/client"
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
@@ -109,4 +109,34 @@ export const findIntersectingLayers = (layers: ReadonlyMap<string, Layer>, from:
     }
   })
 
+}
+
+export function getTextColor({r, g, b}: Color) {
+  // Ensure values are within 0-255 range
+  r = Math.max(0, Math.min(255, r));
+  g = Math.max(0, Math.min(255, g));
+  b = Math.max(0, Math.min(255, b));
+  
+  // Calculate luminance using the relative luminance formula
+  const rLinear = r / 255;
+  const gLinear = g / 255;
+  const bLinear = b / 255;
+  
+  const rAdjusted = rLinear <= 0.03928 
+      ? rLinear / 12.92 
+      : Math.pow((rLinear + 0.055) / 1.055, 2.4);
+  
+  const gAdjusted = gLinear <= 0.03928 
+      ? gLinear / 12.92 
+      : Math.pow((gLinear + 0.055) / 1.055, 2.4);
+  
+  const bAdjusted = bLinear <= 0.03928 
+      ? bLinear / 12.92 
+      : Math.pow((bLinear + 0.055) / 1.055, 2.4);
+  
+  // Calculate luminance
+  const luminance = 0.2126 * rAdjusted + 0.7152 * gAdjusted + 0.0722 * bAdjusted;
+  
+  // Choose text color based on luminance
+  return luminance < 0.5 ? '#FFFFFF' : '#000000';
 }

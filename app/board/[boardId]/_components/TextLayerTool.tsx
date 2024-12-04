@@ -1,5 +1,5 @@
 import { useSelectionBounds } from "@/hooks/use-selection-bounds";
-import { Camera, Color, Layer, LayerType, TextLayer } from "@/types";
+import { Camera, Color, Layer, LayerType, NoteLayer, TextLayer } from "@/types";
 import { memo, useState } from "react";
 import ColorPicker from "./ColorPicker";
 import { useMutation, useSelf } from "@liveblocks/react/suspense";
@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { LiveObject } from "@liveblocks/client";
 
 interface TextLayerToolsProps {
-    layer: TextLayer
+    layer: TextLayer | NoteLayer
 }
 
 const TextLayerTools = memo((
@@ -16,12 +16,12 @@ const TextLayerTools = memo((
 ) => {
 
     const onIncreaseSize = useMutation(({storage}) => {
-        const textLayer : LiveObject<TextLayer> | undefined = storage.get("layers").get(layer.id) as LiveObject<TextLayer>;
+        const textLayer : LiveObject<TextLayer | NoteLayer> | undefined = storage.get("layers").get(layer.id) as LiveObject<TextLayer | NoteLayer>;
         textLayer?.set("fontSize", textLayer.get("fontSize") + 1);
     },[]);
 
     const onDecreaseSize = useMutation(({storage}) => {
-        const textLayer : LiveObject<TextLayer> | undefined = storage.get("layers").get(layer.id) as LiveObject<TextLayer>;
+        const textLayer : LiveObject<TextLayer | NoteLayer> | undefined = storage.get("layers").get(layer.id) as LiveObject<TextLayer | NoteLayer>;
         textLayer?.set("fontSize", textLayer.get("fontSize") - 1);
     },[]);
 

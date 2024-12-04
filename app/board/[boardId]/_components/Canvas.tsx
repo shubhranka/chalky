@@ -199,7 +199,7 @@ export default function Canvas({ boardId }: CanvasProps) {
         rotation: 0,
       } as Layer);
 
-      if (layerType === LayerType.Text) {
+      if (layerType === LayerType.Text || layerType === LayerType.Sticky) {
         layer.set("value", "Text");
         (layer as LiveObject<TextLayer>).set("fontSize", 16);
       }
@@ -408,7 +408,7 @@ export default function Canvas({ boardId }: CanvasProps) {
         canUndo={canUndo}
         canRedo={canRedo}
       />
-      {selectedLayer && selectedLayer.type === LayerType.Text && <TextLayerTools layer={selectedLayer}/>}
+      {selectedLayer && (selectedLayer.type === LayerType.Text || selectedLayer.type === LayerType.Sticky) && <TextLayerTools layer={selectedLayer}/>}
       {canvasState.mode !== CanvasMode.SelectionNet && <LayerTools
         camera={camera}
         lastUsedColor={lastColor}

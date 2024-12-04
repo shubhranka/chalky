@@ -55,6 +55,13 @@ const LayerElement = (
                 onPointerDown={onLayerPointerDown}
                 selectionColor={selectionColor}
             />
+        case LayerType.Sticky:
+            return <Text
+                id={layerId}
+                layer={layer}
+                onPointerDown={onLayerPointerDown}
+                selectionColor={selectionColor}
+                />
         default:
             return null;
 

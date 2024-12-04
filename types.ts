@@ -78,6 +78,7 @@ export type NoteLayer = {
     size: Point,
     rotation: number,
     value?: string,
+    fontSize: number
 }
 
 export type XYWH = {
