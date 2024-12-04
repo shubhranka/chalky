@@ -9,10 +9,11 @@ import { LiveObject } from "@liveblocks/client";
 
 interface TextLayerToolsProps {
     layer: TextLayer | NoteLayer
+    camera: Camera
 }
 
 const TextLayerTools = memo((
-    {layer}: TextLayerToolsProps
+    {camera,layer}: TextLayerToolsProps
 ) => {
 
     const onIncreaseSize = useMutation(({storage}) => {
@@ -29,8 +30,8 @@ const TextLayerTools = memo((
     <div className="absolute bg-white rounded-xl px-1.5 py-1.5 shadow-md flex flex-row gap-3 items-center justify-center"   
         style={{
             transform: `translate(
-                calc(${layer.position.x + layer.size.x/2}px - 50%),
-                calc(${layer.position.y - 80}px - 100%)
+                calc(${(layer.position.x + layer.size.x/2) * camera.scale}px - 50%),
+                calc(${(layer.position.y*camera.scale - 80)}px - 100%)
             )`
         }}
         >

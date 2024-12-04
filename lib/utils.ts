@@ -24,11 +24,14 @@ export function getUserColor(connectionId: number) {
 }
 
 export const pointerEventToCanvasPoint = (camera: Camera, e: React.PointerEvent): Point => {
-  const rect = (e.target as HTMLElement).getBoundingClientRect();
   return {
-    x: (e.clientX) / camera.scale + camera.x,
-    y: (e.clientY) / camera.scale + camera.y,
+    x: ((e.clientX) - camera.x) /camera.scale   ,
+    y: ((e.clientY) - camera.y) /camera.scale   ,
   };
+  // return {
+  //   x: (e.clientX) / 1 - camera.x,
+  //   y: (e.clientY) / 1 - camera.y,
+  // };
 }
 
 export const resizeLayer = (corner: Side, initialBounds: XYWH, p: Point) => {

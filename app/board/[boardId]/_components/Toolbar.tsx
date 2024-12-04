@@ -139,6 +139,9 @@ const Toolbar = ({
           }}
           disabled={camera.scale <= 0.1}
         />
+        <div className="bg-white-100 text-muted-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm">
+          {Math.round(camera.scale * 100)}%
+        </div>
       </div>
     </div>
   );

@@ -54,8 +54,8 @@ const LayerTools = memo((
     <div className="absolute bg-white rounded-xl px-1.5 py-1.5 shadow-md flex flex-row gap-3 items-center justify-center"   
         style={{
             transform: `translate(
-                calc(${x}px - 50%),
-                calc(${y - 16}px - 100%)
+                calc(${x*camera.scale}px - 50%),
+                calc(${y*camera.scale - 16}px - 100%)
             )`
         }}
         >

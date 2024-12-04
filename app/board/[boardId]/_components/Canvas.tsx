@@ -14,7 +14,7 @@ import {
 import Info from "./Info";
 import Participents from "./Participents";
 import Toolbar from "./Toolbar";
-import React, { useCallback, useMemo, useState } from "react";
+import React, {useCallback, useEffect, useMemo, useState } from "react";
 import {
   useCanRedo,
   useCanUndo,
@@ -60,6 +60,7 @@ export default function Canvas({ boardId }: CanvasProps) {
     y: 0,
     scale: 1,
   });
+  const [spacebarPressed, setSpacebarPressed] = useState(false);
   const selectedLayerId = useSelf(me => me.presence.selection?.length == 1 ? me.presence.selection[0] : null);
   const selectedLayer = useStorage(storage => {
     if (!selectedLayerId) return null;
@@ -97,6 +98,39 @@ export default function Canvas({ boardId }: CanvasProps) {
       )
   },[])
 
+  const throttle = ( delay: number) => {
+    let lastCall :any = 0;
+    return (camera:Camera, point: Point) => {
+      const now = Date.now();
+      if (now - lastCall < delay) {
+        clearTimeout(lastCall);
+      }
+      lastCall = setTimeout(() => {
+        setCamera(camera);
+        setCanvasState({
+          mode: CanvasMode.Pressing,
+          origin: point
+        })
+      }, delay);
+    };
+  };
+
+  const throttledMoveCamera = throttle(16);
+
+
+  const moveCamera = useCallback(( originL:Point, point: Point) => {
+    const dx = Math.abs(originL.x - point.x);
+    const dy = Math.abs(originL.y - point.y);
+
+    if (dx < 5 && dy < 5) 
+        return
+    throttledMoveCamera({
+      x: camera.x + point.x - originL.x,
+      y: camera.y + point.y - originL.y,
+      scale: camera.scale
+    }, point)
+  },[camera, throttledMoveCamera])
+
   const onPointerMove = useMutation(
     ({ setMyPresence }, e: React.PointerEvent) => {
       e.preventDefault();
@@ -105,7 +139,11 @@ export default function Canvas({ boardId }: CanvasProps) {
         resizeSelectedLayer(point);
       }
       else if(canvasState.mode === CanvasMode.Pressing){
-        checkForSelectionNet(canvasState.origin, point);
+        if (spacebarPressed) {
+          moveCamera(canvasState.origin,point);
+        }else{
+          checkForSelectionNet(canvasState.origin, point);
+        }
       }
       else if(canvasState.mode === CanvasMode.SelectionNet){
           updateSelectionNet(canvasState.origin, point);
@@ -396,8 +434,50 @@ export default function Canvas({ boardId }: CanvasProps) {
     [self.presence.selection]
   );
 
+  const onKeyDownHandler = 
+    useCallback((e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        setSpacebarPressed(true);
+      }
+    },[setSpacebarPressed]);
+  const onKeyUpHandler = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        setSpacebarPressed(false);
+      }
+    },
+    [setSpacebarPressed]
+  );
+  // const [cameraMousePosition, setCameraMousePosition] = useState<Point>({ x: 0, y: 0 });
+
+  // const justToCheckMouseMove = useCallback((e : MouseEvent) => {
+  //   const point = pointerEventToCanvasPoint(camera,e as any );
+  //   setCameraMousePosition(point);
+  // }, [
+  //   setCameraMousePosition,
+  //   camera,
+  // ]);
+
+  
+  useEffect(() => {
+    document.addEventListener("keydown", onKeyDownHandler);
+    document.addEventListener("keyup", onKeyUpHandler);
+    // document.addEventListener("mousemove", justToCheckMouseMove)
+    return () => {
+      document.removeEventListener("keydown", onKeyDownHandler);
+      document.removeEventListener("keyup", onKeyUpHandler);
+    };
+  }, [onKeyDownHandler, 
+    onKeyUpHandler,
+    // justToCheckMouseMove
+  ]);
+
   return (
-    <div className="h-full w-full realtive bg-neutral-100">
+    <div className="h-full w-full realtive bg-neutral-100 overflow-hidden overflow-clip" style={{
+      cursor: spacebarPressed ? "grab" : "auto",
+    }}>
       <Info boardId={boardId} />
       <Participents />
       <Toolbar
@@ -410,13 +490,25 @@ export default function Canvas({ boardId }: CanvasProps) {
         setCamera={setCamera}
         camera={camera}
       />
-      {selectedLayer && (selectedLayer.type === LayerType.Text || selectedLayer.type === LayerType.Sticky) && <TextLayerTools layer={selectedLayer}/>}
+      {selectedLayer && (selectedLayer.type === LayerType.Text || selectedLayer.type === LayerType.Sticky) && <TextLayerTools camera={camera} layer={selectedLayer}/>}
       {canvasState.mode !== CanvasMode.SelectionNet && <LayerTools
         camera={camera}
         lastUsedColor={lastColor}
         setLastUsedColor={onHandleColorPick}
         deleteLayer={onDeleteLayer}
       />}
+      
+      {/* <div className="h-12 w-12 bg-slate-600 absolute" 
+        style={{
+          transform: `translate(${cameraMousePosition.x + 16}px, ${cameraMousePosition.y + 16}px)`
+        }} 
+      />
+      <div className="h-12 w-12 bg-red-600 absolute" 
+        style={{
+          transform: `translate(${camera.x}px, ${camera.y}px)`
+        }} 
+      /> */}
+
       <svg
         className="h-[100vh] w-[100vw]"
         onPointerMove={onPointerMove}
