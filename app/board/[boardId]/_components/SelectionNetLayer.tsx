@@ -19,10 +19,9 @@ const SelectionNetLayer = (
       y={actualY}
       width={actualWidth}
       height={actualHeight}
-      fill="transparent"
+      className="fill-red-200"
       stroke="red"
       strokeWidth={0.5}
-      style={{ pointerEvents: "none" }}
     />
   );
 };

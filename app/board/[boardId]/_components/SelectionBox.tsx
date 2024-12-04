@@ -15,9 +15,14 @@ const  SelectionBox = memo((
 
     const HANDLE_WIDTH = 10;
 
+    const selections = useSelf(me=>me.presence.selection) || []
     const soleLayerId = useSelf(me=>me.presence.selection?.[0]);
+    let isShowingHandle = useStorage(storage => soleLayerId && storage.layers.get(soleLayerId)?.type !== LayerType.Pencil);
 
-    const isShowingHandle = useStorage(storage => soleLayerId && storage.layers.get(soleLayerId)?.type !== LayerType.Pencil);
+    if(selections && selections.length > 1){
+        isShowingHandle = false
+    }
+
 
     const bounds = useSelectionBounds();
 

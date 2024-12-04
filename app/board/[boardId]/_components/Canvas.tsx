@@ -8,6 +8,7 @@ import {
   LayerType,
   Point,
   Side,
+  TextLayer,
   XYWH,
 } from "@/types";
 import Info from "./Info";
@@ -41,6 +42,7 @@ import {
 import SelectionBox from "./SelectionBox";
 import LayerTools from "./LayerTools";
 import SelectionNetLayer from "./SelectionNetLayer";
+import TextLayerTools from "./TextLayerTool";
 
 interface CanvasProps {
   boardId: string;
@@ -58,6 +60,11 @@ export default function Canvas({ boardId }: CanvasProps) {
     y: 0,
     scale: 1,
   });
+  const selectedLayerId = useSelf(me => me.presence.selection?.length == 1 ? me.presence.selection[0] : null);
+  const selectedLayer = useStorage(storage => {
+    if (!selectedLayerId) return null;
+    return storage.layers.get(selectedLayerId);
+  })
 
 
 
@@ -191,6 +198,11 @@ export default function Canvas({ boardId }: CanvasProps) {
         size: { x: 100, y: 100 },
         rotation: 0,
       } as Layer);
+
+      if (layerType === LayerType.Text) {
+        layer.set("value", "Text");
+        (layer as LiveObject<TextLayer>).set("fontSize", 16);
+      }
 
       storage.get("layerIds").push(layerId);
       storage.get("layers").set(layerId, layer);
@@ -396,12 +408,13 @@ export default function Canvas({ boardId }: CanvasProps) {
         canUndo={canUndo}
         canRedo={canRedo}
       />
-      <LayerTools
+      {selectedLayer && selectedLayer.type === LayerType.Text && <TextLayerTools layer={selectedLayer}/>}
+      {canvasState.mode !== CanvasMode.SelectionNet && <LayerTools
         camera={camera}
         lastUsedColor={lastColor}
         setLastUsedColor={onHandleColorPick}
         deleteLayer={onDeleteLayer}
-      />
+      />}
       <svg
         className="h-[100vh] w-[100vw]"
         onPointerMove={onPointerMove}

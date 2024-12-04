@@ -6,8 +6,6 @@ const boundingBox = (layers: Layer[]): XYWH | null => {
     const first = layers[0];
     if (!first) return null;
 
-    console.log(layers);
-
     let x = first.position.x;
     let y = first.position.y;
     let w = first.size.x;

@@ -66,6 +66,7 @@ export type TextLayer = {
     fill: Color,
     rotation: number,
     value?: string,
+    fontSize: number
 }
 
 export type NoteLayer = {

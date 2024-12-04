@@ -1,5 +1,6 @@
 import { LayerType, Point } from "@/types";
 import { useStorage } from "@liveblocks/react/suspense";
+import Text from "./Text";
 
 interface LayerProps {
     layerId: string;
@@ -27,11 +28,33 @@ const LayerElement = (
                     style={{
                         transform: `translate(${layer.position.x}px, ${layer.position.y}px)`,
                     }}
-                    className="drop-shadow-lg"
+                    className="drop-shadow-xl"
                     stroke={selectionColor || "transparent"}
                     onPointerDown={(e) => onLayerPointerDown(e, layerId)}
                     strokeWidth={selectionColor ? 2 : 0}
                 />
+        case LayerType.Ellipse:
+            return <ellipse
+                cx={layer.size.x / 2}
+                cy={layer.size.y / 2}
+                rx={layer.size.x / 2}
+                ry={layer.size.y / 2}
+                fill={`rgb(${layer.fill.r},${layer.fill.g},${layer.fill.b})`}
+                style={{
+                    transform: `translate(${layer.position.x}px, ${layer.position.y}px) rotate(${layer.rotation}deg)`,
+                }}
+                className="drop-shadow-xl"
+                stroke={selectionColor || "transparent"}
+                onPointerDown={(e) => onLayerPointerDown(e, layerId)}
+                strokeWidth={selectionColor ? 2 : 0}
+            />
+        case LayerType.Text:
+            return <Text
+                id={layerId}
+                layer={layer}
+                onPointerDown={onLayerPointerDown}
+                selectionColor={selectionColor}
+            />
         default:
             return null;
 
