@@ -407,6 +407,8 @@ export default function Canvas({ boardId }: CanvasProps) {
         undo={undo}
         canUndo={canUndo}
         canRedo={canRedo}
+        setCamera={setCamera}
+        camera={camera}
       />
       {selectedLayer && (selectedLayer.type === LayerType.Text || selectedLayer.type === LayerType.Sticky) && <TextLayerTools layer={selectedLayer}/>}
       {canvasState.mode !== CanvasMode.SelectionNet && <LayerTools

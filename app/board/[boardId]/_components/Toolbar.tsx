@@ -10,8 +10,10 @@ import {
   StickyNote,
   Type,
   Undo2,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
-import { CanvasMode, CanvasState, LayerType } from "@/types";
+import { Camera, CanvasMode, CanvasState, LayerType } from "@/types";
 
 interface ToolbarProps {
   canvasState: CanvasState;
@@ -20,6 +22,8 @@ interface ToolbarProps {
   undo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  setCamera: (camera: Camera) => void
+  camera: Camera
 }
 
 const Toolbar = ({
@@ -29,6 +33,8 @@ const Toolbar = ({
   undo,
   canUndo,
   canRedo,
+  setCamera,
+  camera
 }: ToolbarProps) => {
   return (
     <div className="absolute top-[50%] -translate-y-[50%] left-2 flex flex-col gap-y-4">
@@ -107,6 +113,31 @@ const Toolbar = ({
           icon={Redo2}
           onClick={redo}
           disabled={!canRedo}
+        />
+      </div>
+      
+      <div className="bg-white rounded-md p-1.5 flex flex-col items-center gap-y-1 shadow-md">
+        <ToolButton
+          label="Scale In"
+          icon={ZoomIn}
+          onClick={()=>{
+            const newCamera = {
+              ...camera,
+              scale: camera.scale + 0.1};
+            setCamera(newCamera);
+          }}
+          disabled={camera.scale >= 3}
+        />
+        <ToolButton
+          label="Scale Out"
+          icon={ZoomOut}
+          onClick={()=>{
+            const newCamera = {
+              ...camera,
+              scale: camera.scale - 0.1};
+            setCamera(newCamera);
+          }}
+          disabled={camera.scale <= 0.1}
         />
       </div>
     </div>
