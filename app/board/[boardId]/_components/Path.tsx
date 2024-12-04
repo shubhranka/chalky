@@ -20,7 +20,7 @@ const Path = (
           height={layer.size.y}
           x={layer.position.x}
           y={layer.position.y}
-          className="drop-shadow-2xl"
+          className="drop-shadow-2xl overflow-visible"
           onPointerDown={(e) => onPointerDown(e, id)}
         >
         
