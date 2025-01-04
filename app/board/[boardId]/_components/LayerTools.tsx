@@ -47,8 +47,11 @@ const LayerTools = memo((
     const bounds = useSelectionBounds();
 
     if (!bounds) return null;
-    const x = bounds?.x + bounds?.w/2 + camera.x;
-    const y = bounds?.y + camera.y;
+    // const x = bounds?.x + bounds?.w/2 + camera.x;
+    // const y = bounds?.y + camera.y;
+
+    const x = camera.x / camera.scale + bounds?.x + bounds?.w/2;
+    const y = camera.y / camera.scale + bounds?.y;
 
   return (
     <div className="absolute bg-white rounded-xl px-1.5 py-1.5 shadow-md flex flex-row gap-3 items-center justify-center"   

@@ -580,9 +580,9 @@ export default function Canvas({ boardId }: CanvasProps) {
         <g
           transform={`translate(${camera.x},${camera.y}) scale(${camera.scale})`}
         >
-        {canvasState.mode === CanvasMode.SelectionNet && (
-            <SelectionNetLayer from={canvasState.origin} to={canvasState.position!} />
-        )}
+          {canvasState.mode === CanvasMode.SelectionNet && (
+              <SelectionNetLayer from={canvasState.origin} to={canvasState.position!} />
+          )}
           {layerIds.map((layerId) => (
             <LayerElement
               onLayerPointerDown={onPointerPress}
