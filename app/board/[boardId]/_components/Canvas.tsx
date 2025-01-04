@@ -65,6 +65,7 @@ export default function Canvas({ boardId }: CanvasProps) {
     y: 0,
     scale: 1,
   });
+  let lastPoint = {x:0, y:0};
   const [spacebarPressed, setSpacebarPressed] = useState(false);
   const selectedLayerId = useSelf(me => me.presence.selection?.length == 1 ? me.presence.selection[0] : null);
   const selectedLayer = useStorage(storage => {
@@ -129,46 +130,55 @@ export default function Canvas({ boardId }: CanvasProps) {
 
     if (dx < 5 && dy < 5) 
         return
-    throttledMoveCamera({
-      x: camera.x + point.x - originL.x,
-      y: camera.y + point.y - originL.y,
-      scale: camera.scale
-    }, point)
-  },[camera, throttledMoveCamera])
+    // throttledMoveCamera({
+    //   x: camera.x + (point.x - originL.x) * 0.9,
+    //   y: camera.y + (point.y - originL.y) * 0.9,
+    //   // x: camera.x + originL.x - point.x,
+    //   // y: camera.y + originL.y - point.y,
+    //   scale: camera.scale
+    // }, point)
+    setCamera({
+      x: camera.x + (point.x - lastPoint.x) * 1,
+      y: camera.y + (point.y - lastPoint.y) * 1,
+      scale: camera.scale 
+    });
+    // lastPoint = point;
+        //   setCanvasState({
+        //   mode: CanvasMode.Pressing,
+        //   origin: point
+        // })
+  },[camera, throttledMoveCamera, lastPoint, setCamera])
 
   const onPointerMove = useMutation(
     ({ setMyPresence }, e: React.PointerEvent) => {
       e.preventDefault();
-
+  
       const point = pointerEventToCanvasPoint(camera, e);
-
-      if(canvasState.mode === CanvasMode.Drawing){
+  
+      if (canvasState.mode === CanvasMode.Drawing) {
         continueDrawing(point);
-      }
-      else if (canvasState.mode === CanvasMode.Resizing) {
+      } else if (canvasState.mode === CanvasMode.Resizing) {
         resizeSelectedLayer(point);
-      }
-      else if(canvasState.mode === CanvasMode.Pressing){
-        if (spacebarPressed) {
-          moveCamera(canvasState.origin,point);
-        }else{
-          checkForSelectionNet(canvasState.origin, point);
-        }
-      }
-      else if(canvasState.mode === CanvasMode.SelectionNet){
-          updateSelectionNet(canvasState.origin, point);
-      }
-      else if (canvasState.mode === CanvasMode.Translating) {
+      } else if (canvasState.mode === CanvasMode.Panning) {
+        const deltaX = e.clientX - canvasState.origMousePos.x;
+        const deltaY = e.clientY - canvasState.origMousePos.y;
+  
+        setCamera((prevCamera) => ({
+          x: canvasState.origCameraPos.x + deltaX,
+          y: canvasState.origCameraPos.y + deltaY,
+          scale: prevCamera.scale,
+        }));
+      } else if (canvasState.mode === CanvasMode.Pressing) {
+        checkForSelectionNet(canvasState.origin, point);
+      } else if (canvasState.mode === CanvasMode.SelectionNet) {
+        updateSelectionNet(canvasState.origin, point);
+      } else if (canvasState.mode === CanvasMode.Translating) {
         translateSelectedLayer(point);
       }
-      setMyPresence({
-        cursor: point,
-      });
+  
+      setMyPresence({ cursor: point });
     },
-    [canvasState,
-      canvasState.mode,
-      camera
-    ]
+    [canvasState, camera]
   );
 
   const translateSelectedLayer = useMutation(
@@ -315,19 +325,15 @@ export default function Canvas({ boardId }: CanvasProps) {
     ({}, e) => {
       if (canvasState.mode === CanvasMode.Drawing) {
         stopDrawing();
-      }
-      else if (
-        canvasState.mode === CanvasMode.Pressing ||
-        canvasState.mode === CanvasMode.None
-      ) {
+      } else if (canvasState.mode === CanvasMode.Panning) {
+        setCanvasState({ mode: CanvasMode.None });
+      } else if (canvasState.mode === CanvasMode.Pressing || canvasState.mode === CanvasMode.None) {
         deselectLayer();
       } else if (canvasState.mode === CanvasMode.Inserting) {
         const point = pointerEventToCanvasPoint(camera, e);
         onInsertLayer(canvasState.layerType, point);
       } else {
-        setCanvasState({
-          mode: CanvasMode.None,
-        });
+        setCanvasState({ mode: CanvasMode.None });
       }
       history.resume();
     },
@@ -440,25 +446,30 @@ export default function Canvas({ boardId }: CanvasProps) {
   ])
 
   const onPointerDown = useCallback(
-    (e: React.PointerEvent) => {
-      const point = pointerEventToCanvasPoint(camera, e);
-      if (canvasState.mode === CanvasMode.Resizing ||
-        canvasState.mode === CanvasMode.Inserting
-      ) {
-        return;
-      }
-      if(canvasState.mode === CanvasMode.Pencil){
-        startDrawing();
-      }
-      else{
-        setCanvasState({
-          mode: CanvasMode.Pressing,
-          origin: point,
-        });
-      }
-    },
-    [canvasState, camera, setCanvasState, startDrawing]
-  );
+  (e: React.PointerEvent) => {
+    const point = pointerEventToCanvasPoint(camera, e);
+
+    if (canvasState.mode === CanvasMode.Resizing || canvasState.mode === CanvasMode.Inserting) {
+      return;
+    }
+
+    if (spacebarPressed) {
+      setCanvasState({
+        mode: CanvasMode.Panning,
+        origMousePos: { x: e.clientX, y: e.clientY },
+        origCameraPos: { x: camera.x, y: camera.y, scale: camera.scale },
+      });
+    } else if (canvasState.mode === CanvasMode.Pencil) {
+      startDrawing();
+    } else {
+      setCanvasState({
+        mode: CanvasMode.Pressing,
+        origin: point,
+      });
+    }
+  },
+  [canvasState, camera, setCanvasState, startDrawing, spacebarPressed]
+);
 
   const onWheelHandler = useCallback(
     (e: React.WheelEvent) => {

@@ -129,6 +129,11 @@ export type  CanvasState =
     } |
     {
         mode: CanvasMode.Drawing
+    } | 
+    {
+        mode: CanvasMode.Panning,
+        origMousePos: Point,
+        origCameraPos: Camera,
     }
 
 
@@ -141,7 +146,8 @@ export enum CanvasMode {
     Resizing,
     Pencil,
     Pressing,
-    Drawing
+    Drawing,
+    Panning
 }
 
 export type Layer = RectangleLayer | EllipseLayer | PathLayer | TextLayer | NoteLayer
